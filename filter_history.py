@@ -1,3 +1,8 @@
+""" TO-DO:
+            Work on consolidating multiple sessions on the same day into
+            one, as slight variances in coordinates make it seem like I've
+            left the gym even though I haven't yet.
+"""
 import json
 import datetime
 import argparse
@@ -16,8 +21,8 @@ new_data['locations'] = []
 
 # coordinates you want to match in the data, add/subtract numbers to
 # increase/decrease accuracy of wanted location
-gym_lat = '-37873'
-gym_lon = '144726'
+gym_lat = -37873
+gym_lon = 144726
 end_time = 0
 max_elapsed_time = 14400000
 
@@ -26,12 +31,17 @@ def conv_timestamp(time):
     new_time = new_time.strftime('%Y-%m-%d %H:%M')
     return(new_time)
 
+def constr_long(lon):
+    rounded_lon = float(lon[:3]) + round(float(lon[3:7])/10000, 3)
+    new_lon = str(rounded_lon)[:3] + str(rounded_lon)[4:7]
+    return(new_lon)
+
 # check each data point and see if it matches the necessary coordinates
 # if it does, consider that the end time
 for location in data['locations']:
-    lon = str(location['longitudeE7'])[:6]
-    lat = str(location['latitudeE7'])[:6]
-    if lon == gym_lon and lat == gym_lat:
+    lon = int(str(location['longitudeE7'])[:6])
+    lat = int(str(location['latitudeE7'])[:6])
+    if (gym_lat-1 <= lat <= gym_lat+1) and (gym_lon-1 <= lon <= gym_lon+1):
         if not end_time:
             end_time = int(location['timestampMs'])
     elif end_time:
